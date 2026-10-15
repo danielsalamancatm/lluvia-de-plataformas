@@ -181,7 +181,7 @@
         let playerName = "Operador";
         let currentLevel = 1;
         let score = 0;
-        let lives = 8; // 8 Vidas por defecto
+        let lives = 8;
         let gameActive = false;
 
         let platformProgress = {};
@@ -222,10 +222,7 @@
             });
             activeWords = [];
             spawnTimer = 0;
-
-            // 8 vidas fijas para todas las misiones
             lives = 8;
-
             updateUI();
         }
 
@@ -323,14 +320,13 @@
                 expectedAnswer: expectedAnswer,
                 x: Math.random() * (canvas.width - 220) + 20,
                 y: -30,
-                speed: 0.01
+                // NUEVA VELOCIDAD: Muy lenta para primer grado y con un incremento mínimo por nivel
+                speed: 0.15 + (currentLevel * 0.05) 
             });
         }
 
         function processTyping() {
             let typed = typingInput.value.trim().toUpperCase();
-            
-            // Borrar automáticamente la caja de texto al presionar Enter
             typingInput.value = "";
 
             if (typed === "") return;
@@ -404,7 +400,8 @@
             if (!gameActive) return;
 
             spawnTimer++;
-            if (spawnTimer > 95 - (currentLevel * 10)) {
+            // Aumentado el tiempo entre aparición de palabras para que tengan más calma (de 95 a 140)
+            if (spawnTimer > 140 - (currentLevel * 10)) {
                 spawnWord();
                 spawnTimer = 0;
             }
