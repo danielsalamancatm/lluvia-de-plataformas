@@ -137,7 +137,7 @@
 
     <!-- Contenedor Principal -->
     <main class="w-full max-w-3xl flex flex-col items-center gap-3">
-        <!-- Barra Compacta en Una Sola Fila para el Progreso de Plataformas -->
+        <!-- Barra Compacta para el Progreso de Plataformas -->
         <div class="w-full bg-white/5 border border-white/10 rounded-2xl p-2.5 backdrop-blur-md flex flex-wrap items-center justify-between gap-2">
             <div class="text-xs font-bold text-purple-300 uppercase pl-1">Progreso:</div>
             <div id="platforms-progress-list" class="flex flex-wrap items-center justify-end gap-2 flex-1">
@@ -145,9 +145,18 @@
             </div>
         </div>
 
-        <!-- Área de Lluvia (Canvas) -->
+        <!-- Área de Lluvia (Canvas con Superposición de Cuenta Regresiva) -->
         <div class="relative w-full flex justify-center">
             <canvas id="gameCanvas" width="600" height="380" class="game-arena rounded-3xl border border-white/20 w-full max-w-[600px] h-auto"></canvas>
+            
+            <!-- Capa de Cuenta Regresiva / Mensaje Inicial -->
+            <div id="countdown-overlay" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm rounded-3xl flex flex-col items-center justify-center text-center p-6 transition-all duration-300">
+                <p class="text-amber-300 font-bold text-sm md:text-base mb-2">⌨️ Al escribir la palabra presiona <span class="bg-amber-400/20 text-amber-200 px-2 py-0.5 rounded-lg border border-amber-400/40">ENTER</span></p>
+                <p class="text-slate-300 text-xs md:text-sm mb-4">¡Prepárate! El juego comienza en:</p>
+                <div id="countdown-number" class="text-6xl md:text-7xl font-extrabold text-cyan-300 animate-pulse drop-shadow-[0_0_15px_rgba(56,189,248,0.5)]">
+                    3
+                </div>
+            </div>
         </div>
 
         <!-- Caja de Texto Interactiva -->
@@ -183,16 +192,17 @@
         let score = 0;
         let lives = 8;
         let gameActive = false;
+        let isCountingDown = false;
 
         let platformProgress = {};
         let activeWords = [];
-        let spawnTimer = 0;
+        let visualEffects = [];
         let gameLoopInterval = null;
 
         const typingInput = document.getElementById("typing-input");
 
         window.addEventListener("keydown", (e) => {
-            if (e.key === "Enter" && gameActive) {
+            if (e.key === "Enter" && gameActive && !isCountingDown) {
                 processTyping();
             }
         });
@@ -206,22 +216,53 @@
             currentLevel = 1;
             score = 0;
             lives = 8;
-            initLevel();
-            gameActive = true;
-            typingInput.disabled = false;
-            typingInput.focus();
-
-            if (gameLoopInterval) clearInterval(gameLoopInterval);
-            gameLoopInterval = setInterval(gameLoop, 40);
+            
+            startLevelWithCountdown();
         }
 
-        function initLevel() {
+        function startLevelWithCountdown() {
+            initLevelState();
+            isCountingDown = true;
+            gameActive = false;
+            typingInput.disabled = true;
+
+            const overlay = document.getElementById("countdown-overlay");
+            const numberEl = document.getElementById("countdown-number");
+            
+            overlay.classList.remove("hidden");
+            let count = 3;
+            numberEl.innerText = count;
+
+            const timer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    numberEl.innerText = count;
+                } else if (count === 0) {
+                    numberEl.innerText = "¡A JUGAR! 🚀";
+                } else {
+                    clearInterval(timer);
+                    overlay.classList.add("hidden");
+                    isCountingDown = false;
+                    gameActive = true;
+                    typingInput.disabled = false;
+                    typingInput.focus();
+
+                    // Aparecen las palabras exactamente cuando finaliza el 3, 2, 1
+                    maintainThreeWords();
+
+                    if (gameLoopInterval) clearInterval(gameLoopInterval);
+                    gameLoopInterval = setInterval(gameLoop, 40);
+                }
+            }, 1000);
+        }
+
+        function initLevelState() {
             platformProgress = {};
             platformsList.forEach(p => {
                 platformProgress[p.name] = 0;
             });
             activeWords = [];
-            spawnTimer = 0;
+            visualEffects = [];
             lives = 8;
             updateUI();
         }
@@ -232,7 +273,7 @@
         function updateUI() {
             document.getElementById("disp-level").innerText = currentLevel;
             document.getElementById("disp-score").innerText = score;
-            document.getElementById("disp-lives").innerText = "❤️".repeat(lives);
+            document.getElementById("disp-lives").innerText = lives > 0 ? "❤️".repeat(lives) : "💀 Sin vidas";
 
             let instruction = "";
             if (currentLevel === 1) instruction = "Escribe el nombre completo de la plataforma";
@@ -255,9 +296,18 @@
             });
         }
 
+        function maintainThreeWords() {
+            if (!gameActive) return;
+            
+            while (activeWords.length < 3) {
+                let spawned = spawnWord();
+                if (!spawned) break; 
+            }
+        }
+
         function spawnWord() {
             let available = platformsList.filter(p => platformProgress[p.name] < 3);
-            if (available.length === 0) return;
+            if (available.length === 0) return false;
 
             let platform = available[Math.floor(Math.random() * available.length)];
             let fullName = platform.name;
@@ -275,7 +325,6 @@
                 }
                 let targetIdx = indices[Math.floor(Math.random() * indices.length)];
                 expectedAnswer = fullName[targetIdx];
-
                 displayText = fullName.split("").map((char, idx) => idx === targetIdx ? "_" : char).join("");
             } else if (currentLevel === 3) {
                 let indices = [];
@@ -289,11 +338,7 @@
                 } while (idx2 === idx1);
 
                 expectedAnswer = `${fullName[idx1]} ${fullName[idx2]}`;
-
-                displayText = fullName.split("").map((char, idx) => {
-                    if (idx === idx1 || idx === idx2) return "_";
-                    return char;
-                }).join("");
+                displayText = fullName.split("").map((char, idx) => (idx === idx1 || idx === idx2) ? "_" : char).join("");
             } else if (currentLevel === 4) {
                 let indices = [];
                 for (let i = 0; i < fullName.length; i++) {
@@ -306,11 +351,32 @@
                 }
 
                 expectedAnswer = chosen.map(i => fullName[i]).join(" ");
+                displayText = fullName.split("").map((char, idx) => chosen.includes(idx) ? "_" : char).join("");
+            }
 
-                displayText = fullName.split("").map((char, idx) => {
-                    if (chosen.includes(idx)) return "_";
-                    return char;
-                }).join("");
+            let newX, newY;
+            let isValidPosition = false;
+            let attempts = 0;
+
+            ctx.font = "bold 15px Poppins";
+            let approximateWidth = ctx.measureText(displayText).width + 30;
+
+            while (!isValidPosition && attempts < 50) {
+                attempts++;
+                newX = Math.random() * (canvas.width - approximateWidth - 40) + 20;
+                newY = -40 - (Math.random() * 80);
+
+                isValidPosition = true;
+                for (let w of activeWords) {
+                    let wWidth = ctx.measureText(w.displayText).width + 30;
+                    let overlapX = (newX < w.x + wWidth + 25) && (newX + approximateWidth + 25 > w.x);
+                    let overlapY = Math.abs(w.y - newY) < 70;
+
+                    if (overlapX && overlapY) {
+                        isValidPosition = false;
+                        break;
+                    }
+                }
             }
 
             activeWords.push({
@@ -318,11 +384,12 @@
                 fullName: fullName,
                 displayText: displayText,
                 expectedAnswer: expectedAnswer,
-                x: Math.random() * (canvas.width - 220) + 20,
-                y: -30,
-                // NUEVA VELOCIDAD: Muy lenta para primer grado y con un incremento mínimo por nivel
-                speed: 0.15 + (currentLevel * 0.05) 
+                x: newX,
+                y: newY,
+                speed: 0.2 + (currentLevel * 0.04) 
             });
+
+            return true;
         }
 
         function processTyping() {
@@ -335,6 +402,20 @@
 
             if (index !== -1) {
                 let wordObj = activeWords[index];
+                
+                let canvasRect = canvas.getBoundingClientRect();
+                let xPercent = (wordObj.x / canvas.width);
+                let yPercent = (wordObj.y / canvas.height);
+
+                confetti({
+                    particleCount: 40,
+                    spread: 60,
+                    origin: {
+                        x: canvasRect.left / window.innerWidth + (canvasRect.width / window.innerWidth) * xPercent,
+                        y: canvasRect.top / window.innerHeight + (canvasRect.height / window.innerHeight) * yPercent
+                    }
+                });
+
                 activeWords.splice(index, 1);
 
                 if (platformProgress[wordObj.fullName] < 3) {
@@ -346,10 +427,44 @@
                 setTimeout(() => { document.getElementById("typing-feedback").innerText = ""; }, 1200);
 
                 updateUI();
-                checkLevelCompletion();
+                if (!checkLevelCompletion()) {
+                    maintainThreeWords();
+                }
             } else {
-                document.getElementById("typing-feedback").innerText = `❌ No coincide`;
+                lives--;
+                updateUI();
+
+                document.getElementById("typing-feedback").innerText = `❌ Error (-1 Vida)`;
                 setTimeout(() => { document.getElementById("typing-feedback").innerText = ""; }, 1000);
+
+                if (activeWords.length > 0) {
+                    let lowestIndex = 0;
+                    for (let i = 1; i < activeWords.length; i++) {
+                        if (activeWords[i].y > activeWords[lowestIndex].y) {
+                            lowestIndex = i;
+                        }
+                    }
+                    
+                    let targetWord = activeWords[lowestIndex];
+                    visualEffects.push({
+                        x: targetWord.x,
+                        y: targetWord.y,
+                        text: "👎",
+                        alpha: 1.0,
+                        life: 30
+                    });
+
+                    activeWords.splice(lowestIndex, 1);
+                }
+
+                if (lives <= 0) {
+                    gameActive = false;
+                    typingInput.disabled = true;
+                    document.getElementById("game-over-modal").classList.remove("hidden");
+                    return;
+                }
+
+                maintainThreeWords();
             }
         }
 
@@ -373,16 +488,15 @@
                     document.getElementById("vic-score").innerText = score;
                     document.getElementById("victory-modal").classList.remove("hidden");
                 }
+                return true;
             }
+            return false;
         }
 
         function advanceLevel() {
             document.getElementById("level-complete-modal").classList.add("hidden");
             currentLevel++;
-            initLevel();
-            gameActive = true;
-            typingInput.disabled = false;
-            typingInput.focus();
+            startLevelWithCountdown();
         }
 
         function restartGame() {
@@ -390,20 +504,14 @@
             document.getElementById("victory-modal").classList.add("hidden");
             currentLevel = 1;
             score = 0;
-            initLevel();
-            gameActive = true;
-            typingInput.disabled = false;
-            typingInput.focus();
+            startLevelWithCountdown();
         }
 
         function gameLoop() {
             if (!gameActive) return;
 
-            spawnTimer++;
-            // Aumentado el tiempo entre aparición de palabras para que tengan más calma (de 95 a 140)
-            if (spawnTimer > 140 - (currentLevel * 10)) {
-                spawnWord();
-                spawnTimer = 0;
+            if (activeWords.length < 3) {
+                maintainThreeWords();
             }
 
             for (let i = activeWords.length - 1; i >= 0; i--) {
@@ -414,12 +522,25 @@
                     activeWords.splice(i, 1);
                     lives--;
                     updateUI();
+                    
                     if (lives <= 0) {
                         gameActive = false;
                         typingInput.disabled = true;
                         document.getElementById("game-over-modal").classList.remove("hidden");
                         return;
+                    } else {
+                        maintainThreeWords();
                     }
+                }
+            }
+
+            for (let i = visualEffects.length - 1; i >= 0; i--) {
+                let fx = visualEffects[i];
+                fx.y -= 0.5;
+                fx.life--;
+                fx.alpha = fx.life / 30;
+                if (fx.life <= 0) {
+                    visualEffects.splice(i, 1);
                 }
             }
 
@@ -429,13 +550,26 @@
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Rejilla de fondo
             ctx.strokeStyle = "rgba(255, 255, 255, 0.03)";
             ctx.lineWidth = 1;
             for (let x = 0; x < canvas.width; x += 60) {
                 ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
             }
 
-            activeWords.forEach(w => {
+            // Identificar cuál palabra es la más cercana al suelo (la más urgente / la principal)
+            let lowestWordIndex = -1;
+            if (activeWords.length > 0) {
+                lowestWordIndex = 0;
+                for (let i = 1; i < activeWords.length; i++) {
+                    if (activeWords[i].y > activeWords[lowestWordIndex].y) {
+                        lowestWordIndex = i;
+                    }
+                }
+            }
+
+            // Dibujar palabras activas
+            activeWords.forEach((w, index) => {
                 ctx.save();
                 ctx.font = "bold 15px Poppins";
                 let textWidth = ctx.measureText(w.displayText).width;
@@ -447,8 +581,17 @@
                 ctx.roundRect(w.x - 12, w.y - 20, textWidth + 24, 34, 10);
                 ctx.fill();
 
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = "#38bdf8";
+                ctx.lineWidth = 2.5;
+                
+                // Resaltado especial en dorado/ámbar (#f59e0b) para la palabra más cercana al suelo
+                if (index === lowestWordIndex) {
+                    ctx.strokeStyle = "#f59e0b";
+                    ctx.shadowColor = "rgba(245, 158, 11, 0.6)";
+                    ctx.shadowBlur = 15;
+                } else {
+                    ctx.strokeStyle = "#38bdf8";
+                }
+                
                 ctx.stroke();
 
                 ctx.fillStyle = "#ffffff";
@@ -456,6 +599,15 @@
                 ctx.textBaseline = "middle";
                 ctx.fillText(w.displayText, w.x, w.y - 3);
 
+                ctx.restore();
+            });
+
+            // Dibujar efectos visuales (Deditos abajo 👎)
+            visualEffects.forEach(fx => {
+                ctx.save();
+                ctx.font = "28px Poppins";
+                ctx.globalAlpha = Math.max(0, fx.alpha);
+                ctx.fillText(fx.text, fx.x, fx.y);
                 ctx.restore();
             });
         }
