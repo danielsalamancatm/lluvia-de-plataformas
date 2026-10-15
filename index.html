@@ -1,464 +1,467 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lluvia de Plataformas: Centro de Control</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Canvas Confetti CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
-        body { font-family: 'Poppins', sans-serif; user-select: none; }
-        .game-arena {
-            background: radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%);
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5);
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lluvia de Plataformas: Centro de Control</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+        body { font-family: 'Poppins', sans-serif; user-select: none; }
+        .game-arena {
+            background: radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5);
+        }
+    </style>
 </head>
 <body class="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 min-h-screen text-white flex flex-col items-center justify-between p-3 md:p-6">
 
-    <!-- Modal de Inicio / Pedir Nombre -->
-    <div id="name-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-white/10 border border-white/20 rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl backdrop-blur-xl">
-            <span class="text-4xl mb-2 block">🌧️</span>
-            <h2 class="text-2xl font-extrabold text-white mb-2">Lluvia de Plataformas</h2>
-            <p class="text-slate-300 text-sm mb-4">Aprende los nombres y características de las herramientas de videoconferencia escribiendo las palabras antes de que caigan al suelo.</p>
-            <div class="bg-black/30 p-3 rounded-2xl mb-4 text-xs text-cyan-300 text-left space-y-1">
-                <p>⭐ <b>Nivel 1 (8 vidas):</b> Escribe el nombre completo (3 aciertos c/u).</p>
-                <p>⭐ <b>Nivel 2 (8 vidas):</b> Escribe la letra faltante (3 aciertos c/u).</p>
-                <p>⭐ <b>Nivel 3 (8 vidas):</b> Escribe 2 letras faltantes (3 aciertos c/u).</p>
-                <p>⭐ <b>Nivel 4 (8 vidas):</b> Escribe 3 letras faltantes (Reto experto).</p>
-            </div>
-            <input type="text" id="player-name-input" placeholder="Escribe tu nombre..." class="w-full px-4 py-3 rounded-2xl bg-black/40 border border-white/20 text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500 mb-6 text-center font-semibold">
-            <div class="flex gap-3">
-                <button onclick="openGuideModal()" class="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 text-cyan-300 font-bold rounded-2xl border border-white/25 transition-all text-sm">
-                    📖 Guía
-                </button>
-                <button onclick="startGame()" class="flex-[2] py-3 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-white font-bold rounded-2xl shadow-lg transition-all">
-                    ¡Comenzar! 🚀
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- Modal de Inicio / Pedir Nombre -->
+    <div id="name-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white/10 border border-white/20 rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl backdrop-blur-xl">
+            <span class="text-4xl mb-2 block">🌧️</span>
+            <h2 class="text-2xl font-extrabold text-white mb-2">Lluvia de Plataformas</h2>
+            <p class="text-slate-300 text-sm mb-4">Aprende los nombres y características de las herramientas de videoconferencia escribiendo las palabras antes de que caigan al suelo.</p>
+            <div class="bg-black/30 p-3 rounded-2xl mb-4 text-xs text-cyan-300 text-left space-y-1">
+                <p>⭐ <b>Nivel 1 (8 vidas):</b> Escribe el nombre completo (3 aciertos c/u).</p>
+                <p>⭐ <b>Nivel 2 (8 vidas):</b> Escribe la letra faltante (3 aciertos c/u).</p>
+                <p>⭐ <b>Nivel 3 (8 vidas):</b> Escribe 2 letras faltantes (3 aciertos c/u).</p>
+                <p>⭐ <b>Nivel 4 (8 vidas):</b> Escribe 3 letras faltantes (Reto experto).</p>
+            </div>
+            <input type="text" id="player-name-input" placeholder="Escribe tu nombre..." class="w-full px-4 py-3 rounded-2xl bg-black/40 border border-white/20 text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500 mb-6 text-center font-semibold">
+            <div class="flex gap-3">
+                <button onclick="openGuideModal()" class="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 text-cyan-300 font-bold rounded-2xl border border-white/25 transition-all text-sm">
+                    📖 Guía
+                </button>
+                <button onclick="startGame()" class="flex-[2] py-3 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-white font-bold rounded-2xl shadow-lg transition-all">
+                    ¡Comenzar! 🚀
+                </button>
+            </div>
+        </div>
+    </div>
 
-    <!-- Modal Guía de Características -->
-    <div id="guide-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-white/20 rounded-3xl p-6 max-w-lg w-full shadow-2xl backdrop-blur-xl max-h-[85vh] flex flex-col">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-cyan-300">📖 Guía de Plataformas</h3>
-                <button onclick="closeGuideModal()" class="text-slate-400 hover:text-white text-xl font-bold">✕</button>
-            </div>
-            <div class="overflow-y-auto space-y-3 pr-2 text-xs md:text-sm text-slate-300">
-                <div class="bg-white/5 p-3 rounded-2xl border border-white/10">
-                    <strong class="text-white block mb-1">🟦 MICROSOFT TEAMS</strong>
-                    <p>Integrado con Office 365, permite chat en equipo, videoconferencias masivas y gestión de archivos escolares y de tareas.</p>
-                </div>
-                <div class="bg-white/5 p-3 rounded-2xl border border-white/10">
-                    <strong class="text-white block mb-1">🟩 GOOGLE MEET</strong>
-                    <p>Herramienta ligera de Google vinculada a Calendar, ideal para clases virtuales rápidas desde el navegador sin instalar apps pesadas.</p>
-                </div>
-                <div class="bg-white/5 p-3 rounded-2xl border border-white/10">
-                    <strong class="text-white block mb-1">🟦 ZOOM WORKPLACE</strong>
-                    <p>Popular por su alta estabilidad en videollamadas, salas de grupo (breakout rooms) y herramientas interactivas de pizarra.</p>
-                </div>
-                <div class="bg-white/5 p-3 rounded-2xl border border-white/10">
-                    <strong class="text-white block mb-1">⚪ CISCO WEBEX</strong>
-                    <p>Plataforma robusta enfocada en seguridad empresarial, conferencias institucionales y cancelación de ruido por IA.</p>
-                </div>
-                <div class="bg-white/5 p-3 rounded-2xl border border-white/10">
-                    <strong class="text-white block mb-1">🟧 JITSI MEET</strong>
-                    <p>De código abierto, 100% gratuito, sin necesidad de registros obligatorios y respetuoso de la privacidad local.</p>
-                </div>
-            </div>
-            <button onclick="closeGuideModal()" class="mt-4 w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 font-bold rounded-xl text-white transition-all">
-                Entendido, volver al juego
-            </button>
-        </div>
-    </div>
+    <!-- Modal Guía de Características -->
+    <div id="guide-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-white/20 rounded-3xl p-6 max-w-lg w-full shadow-2xl backdrop-blur-xl max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-cyan-300">📖 Guía de Plataformas</h3>
+                <button onclick="closeGuideModal()" class="text-slate-400 hover:text-white text-xl font-bold">✕</button>
+            </div>
+            <div class="overflow-y-auto space-y-3 pr-2 text-xs md:text-sm text-slate-300">
+                <div class="bg-white/5 p-3 rounded-2xl border border-white/10">
+                    <strong class="text-white block mb-1">🟦 MICROSOFT TEAMS</strong>
+                    <p>Integrado con Office 365, permite chat en equipo, videoconferencias masivas y gestión de archivos escolares y de tareas.</p>
+                </div>
+                <div class="bg-white/5 p-3 rounded-2xl border border-white/10">
+                    <strong class="text-white block mb-1">🟩 GOOGLE MEET</strong>
+                    <p>Herramienta ligera de Google vinculada a Calendar, ideal para clases virtuales rápidas desde el navegador sin instalar apps pesadas.</p>
+                </div>
+                <div class="bg-white/5 p-3 rounded-2xl border border-white/10">
+                    <strong class="text-white block mb-1">🟦 ZOOM WORKPLACE</strong>
+                    <p>Popular por su alta estabilidad en videollamadas, salas de grupo (breakout rooms) y herramientas interactivas de pizarra.</p>
+                </div>
+                <div class="bg-white/5 p-3 rounded-2xl border border-white/10">
+                    <strong class="text-white block mb-1">⚪ CISCO WEBEX</strong>
+                    <p>Plataforma robusta enfocada en seguridad empresarial, conferencias institucionales y cancelación de ruido por IA.</p>
+                </div>
+                <div class="bg-white/5 p-3 rounded-2xl border border-white/10">
+                    <strong class="text-white block mb-1">🟧 JITSI MEET</strong>
+                    <p>De código abierto, 100% gratuito, sin necesidad de registros obligatorios y respetuoso de la privacidad local.</p>
+                </div>
+            </div>
+            <button onclick="closeGuideModal()" class="mt-4 w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 font-bold rounded-xl text-white transition-all">
+                Entendido, volver al juego
+            </button>
+        </div>
+    </div>
 
-    <!-- Modal de Fin de Nivel / Misión Completada -->
-    <div id="level-complete-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-indigo-950/60 border border-indigo-500/30 rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl backdrop-blur-xl">
-            <span class="text-5xl mb-3 block">🌟</span>
-            <h3 id="level-complete-title" class="text-2xl font-extrabold text-cyan-300 mb-2">¡Nivel Superado!</h3>
-            <p id="level-complete-desc" class="text-slate-300 text-sm mb-6"></p>
-            <button onclick="advanceLevel()" class="w-full py-3 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-white font-bold rounded-2xl shadow-lg transition-all">
-                Siguiente Nivel 🚀
-            </button>
-        </div>
-    </div>
+    <!-- Modal de Fin de Nivel / Misión Completada -->
+    <div id="level-complete-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-indigo-950/60 border border-indigo-500/30 rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl backdrop-blur-xl">
+            <span class="text-5xl mb-3 block">🌟</span>
+            <h3 id="level-complete-title" class="text-2xl font-extrabold text-cyan-300 mb-2">¡Nivel Superado!</h3>
+            <p id="level-complete-desc" class="text-slate-300 text-sm mb-6"></p>
+            <button onclick="advanceLevel()" class="w-full py-3 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-white font-bold rounded-2xl shadow-lg transition-all">
+                Siguiente Nivel 🚀
+            </button>
+        </div>
+    </div>
 
-    <!-- Modal de Game Over -->
-    <div id="game-over-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-red-950/40 border border-red-500/30 rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl backdrop-blur-xl">
-            <span class="text-5xl mb-3 block">💔</span>
-            <h2 class="text-2xl font-extrabold text-red-400 mb-2">¡Centro de Control Saturado!</h2>
-            <p class="text-slate-300 text-sm mb-4">Te quedaste sin vidas en el intento.</p>
-            <button onclick="restartGame()" class="w-full py-3 px-6 bg-gradient-to-r from-red-700 to-rose-800 hover:from-red-600 text-white font-bold rounded-2xl shadow-lg transition-all">
-                Intentar de Nuevo 🔄
-            </button>
-        </div>
-    </div>
+    <!-- Modal de Game Over -->
+    <div id="game-over-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-red-950/40 border border-red-500/30 rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl backdrop-blur-xl">
+            <span class="text-5xl mb-3 block">💔</span>
+            <h2 class="text-2xl font-extrabold text-red-400 mb-2">¡Centro de Control Saturado!</h2>
+            <p class="text-slate-300 text-sm mb-4">Te quedaste sin vidas en el intento.</p>
+            <button onclick="restartGame()" class="w-full py-3 px-6 bg-gradient-to-r from-red-700 to-rose-800 hover:from-red-600 text-white font-bold rounded-2xl shadow-lg transition-all">
+                Intentar de Nuevo 🔄
+            </button>
+        </div>
+    </div>
 
-    <!-- Modal de Victoria Total -->
-    <div id="victory-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl backdrop-blur-xl">
-            <span class="text-5xl mb-3 block">🏆</span>
-            <h2 class="text-2xl font-extrabold text-emerald-400 mb-2">¡Operador Supremo!</h2>
-            <p class="text-slate-300 text-sm mb-4">Has completado los 4 niveles de las plataformas de videoconferencia.</p>
-            <div class="bg-black/40 border border-white/10 rounded-2xl p-4 mb-6 text-left space-y-2">
-                <p class="text-sm">👤 <span class="text-slate-400">Operador:</span> <strong id="vic-name" class="text-white"></strong></p>
-                <p class="text-sm">⭐ <span class="text-slate-400">Puntaje Final:</span> <strong id="vic-score" class="text-amber-400"></strong></p>
-            </div>
-            <button onclick="restartGame()" class="w-full py-3 px-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 text-white font-bold rounded-2xl shadow-lg transition-all">
-                Jugar de Nuevo 🚀
-            </button>
-        </div>
-    </div>
+    <!-- Modal de Victoria Total -->
+    <div id="victory-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl backdrop-blur-xl">
+            <span class="text-5xl mb-3 block">🏆</span>
+            <h2 class="text-2xl font-extrabold text-emerald-400 mb-2">¡Operador Supremo!</h2>
+            <p class="text-slate-300 text-sm mb-4">Has completado los 4 niveles de las plataformas de videoconferencia.</p>
+            <div class="bg-black/40 border border-white/10 rounded-2xl p-4 mb-6 text-left space-y-2">
+                <p class="text-sm">👤 <span class="text-slate-400">Operador:</span> <strong id="vic-name" class="text-white"></strong></p>
+                <p class="text-sm">⭐ <span class="text-slate-400">Puntaje Final:</span> <strong id="vic-score" class="text-amber-400"></strong></p>
+            </div>
+            <button onclick="restartGame()" class="w-full py-3 px-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 text-white font-bold rounded-2xl shadow-lg transition-all">
+                Jugar de Nuevo 🚀
+            </button>
+        </div>
+    </div>
 
-    <!-- Cabecera del Juego -->
-    <header class="w-full max-w-3xl flex flex-wrap justify-between items-center bg-white/10 backdrop-blur-md px-4 py-3 rounded-2xl border border-white/10 mb-3 gap-2">
-        <div class="flex items-center gap-2">
-            <span class="text-xl">🌧️</span>
-            <div>
-                <h1 class="text-base md:text-lg font-extrabold text-cyan-300">Lluvia de Plataformas</h1>
-                <p class="text-xs text-slate-300">Jugador: <span id="disp-name" class="text-white font-bold">Operador</span></p>
-            </div>
-        </div>
-        <div class="flex items-center gap-4 text-xs md:text-sm">
-            <span>Nivel: <strong id="disp-level" class="text-amber-300">1</strong>/4</span>
-            <span>Puntos: <strong id="disp-score" class="text-emerald-400">0</strong></span>
-            <span>Vidas: <strong id="disp-lives" class="text-rose-400">❤️❤️❤️❤️❤️❤️❤️❤️</strong></span>
-            <button onclick="openGuideModal()" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-xl text-cyan-300 border border-white/20">Guía</button>
-        </div>
-    </header>
+    <!-- Cabecera del Juego -->
+    <header class="w-full max-w-3xl flex flex-wrap justify-between items-center bg-white/10 backdrop-blur-md px-4 py-3 rounded-2xl border border-white/10 mb-3 gap-2">
+        <div class="flex items-center gap-2">
+            <span class="text-xl">🌧️</span>
+            <div>
+                <h1 class="text-base md:text-lg font-extrabold text-cyan-300">Lluvia de Plataformas</h1>
+                <p class="text-xs text-slate-300">Jugador: <span id="disp-name" class="text-white font-bold">Operador</span></p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 text-xs md:text-sm">
+            <span>Nivel: <strong id="disp-level" class="text-amber-300">1</strong>/4</span>
+            <span>Puntos: <strong id="disp-score" class="text-emerald-400">0</strong></span>
+            <span>Vidas: <strong id="disp-lives" class="text-rose-400">❤️❤️❤️❤️❤️❤️❤️❤️</strong></span>
+            <button onclick="openGuideModal()" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-xl text-cyan-300 border border-white/20">Guía</button>
+        </div>
+    </header>
 
-    <!-- Contenedor Principal -->
-    <main class="w-full max-w-3xl flex flex-col items-center gap-3">
-        <!-- Barra Compacta en Una Sola Fila para el Progreso de Plataformas -->
-        <div class="w-full bg-white/5 border border-white/10 rounded-2xl p-2.5 backdrop-blur-md flex flex-wrap items-center justify-between gap-2">
-            <div class="text-xs font-bold text-purple-300 uppercase pl-1">Progreso:</div>
-            <div id="platforms-progress-list" class="flex flex-wrap items-center justify-end gap-2 flex-1">
-                <!-- Se llena dinámicamente -->
-            </div>
-        </div>
+    <!-- Contenedor Principal -->
+    <main class="w-full max-w-3xl flex flex-col items-center gap-3">
+        <!-- Barra Compacta en Una Sola Fila para el Progreso de Plataformas -->
+        <div class="w-full bg-white/5 border border-white/10 rounded-2xl p-2.5 backdrop-blur-md flex flex-wrap items-center justify-between gap-2">
+            <div class="text-xs font-bold text-purple-300 uppercase pl-1">Progreso:</div>
+            <div id="platforms-progress-list" class="flex flex-wrap items-center justify-end gap-2 flex-1">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
 
-        <!-- Área de Lluvia (Canvas) -->
-        <div class="relative w-full flex justify-center">
-            <canvas id="gameCanvas" width="600" height="380" class="game-arena rounded-3xl border border-white/20 w-full max-w-[600px] h-auto"></canvas>
-        </div>
+        <!-- Área de Lluvia (Canvas) -->
+        <div class="relative w-full flex justify-center">
+            <canvas id="gameCanvas" width="600" height="380" class="game-arena rounded-3xl border border-white/20 w-full max-w-[600px] h-auto"></canvas>
+        </div>
 
-        <!-- Caja de Texto Interactiva -->
-        <div class="w-full max-w-[600px]">
-            <input type="text" id="typing-input" placeholder="Escribe aquí la palabra que cae y presiona Enter..." autocomplete="off" disabled class="w-full px-4 py-3 rounded-2xl bg-black/60 border border-cyan-500/40 text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 font-semibold text-sm shadow-lg">
-            <div class="flex justify-between items-center mt-1.5 px-2 text-[11px] text-slate-400">
-                <span>💡 <span id="typing-instruction" class="text-cyan-300">Escribe el nombre completo de la plataforma</span></span>
-                <span id="typing-feedback" class="text-amber-300 font-bold"></span>
-            </div>
-        </div>
-    </main>
+        <!-- Caja de Texto Interactiva -->
+        <div class="w-full max-w-[600px]">
+            <input type="text" id="typing-input" placeholder="Escribe aquí la palabra que cae y presiona Enter..." autocomplete="off" disabled class="w-full px-4 py-3 rounded-2xl bg-black/60 border border-cyan-500/40 text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 font-semibold text-sm shadow-lg">
+            <div class="flex justify-between items-center mt-1.5 px-2 text-[11px] text-slate-400">
+                <span>💡 <span id="typing-instruction" class="text-cyan-300">Escribe el nombre completo de la plataforma</span></span>
+                <span id="typing-feedback" class="text-amber-300 font-bold"></span>
+            </div>
+        </div>
+    </main>
 
-    <!-- Footer -->
-    <footer class="mt-3 text-center text-xs text-slate-400">
-        Escuela Primaria • Herramientas Tecnológicas Educativas
-    </footer>
+    <!-- Footer -->
+    <footer class="mt-3 text-center text-xs text-slate-400">
+        Escuela Primaria • Herramientas Tecnológicas Educativas
+    </footer>
 
-    <!-- Lógica del Juego -->
-    <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
+    <!-- Lógica del Juego -->
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
 
-        const platformsList = [
-            { name: "MICROSOFT TEAMS", short: "TEAMS" },
-            { name: "GOOGLE MEET", short: "MEET" },
-            { name: "ZOOM WORKPLACE", short: "ZOOM" },
-            { name: "CISCO WEBEX", short: "WEBEX" },
-            { name: "JITSI MEET", short: "JITSI" }
-        ];
+        const platformsList = [
+            { name: "MICROSOFT TEAMS", short: "TEAMS" },
+            { name: "GOOGLE MEET", short: "MEET" },
+            { name: "ZOOM WORKPLACE", short: "ZOOM" },
+            { name: "CISCO WEBEX", short: "WEBEX" },
+            { name: "JITSI MEET", short: "JITSI" }
+        ];
 
-        let playerName = "Operador";
-        let currentLevel = 1;
-        let score = 0;
-        let lives = 8;
-        let gameActive = false;
+        let playerName = "Operador";
+        let currentLevel = 1;
+        let score = 0;
+        let lives = 8; // 8 Vidas por defecto
+        let gameActive = false;
 
-        let platformProgress = {};
-        let activeWords = [];
-        let spawnTimer = 0;
-        let gameLoopInterval = null;
+        let platformProgress = {};
+        let activeWords = [];
+        let spawnTimer = 0;
+        let gameLoopInterval = null;
 
-        const typingInput = document.getElementById("typing-input");
+        const typingInput = document.getElementById("typing-input");
 
-        window.addEventListener("keydown", (e) => {
-            if (e.key === "Enter" && gameActive) {
-                processTyping();
-            }
-        });
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && gameActive) {
+                processTyping();
+            }
+        });
 
-        function startGame() {
-            const input = document.getElementById("player-name-input").value.trim();
-            if (input !== "") playerName = input;
-            document.getElementById("disp-name").innerText = playerName;
-            document.getElementById("name-modal").classList.add("hidden");
+        function startGame() {
+            const input = document.getElementById("player-name-input").value.trim();
+            if (input !== "") playerName = input;
+            document.getElementById("disp-name").innerText = playerName;
+            document.getElementById("name-modal").classList.add("hidden");
 
-            currentLevel = 1;
-            score = 0;
-            lives = 8;
-            initLevel();
-            gameActive = true;
-            typingInput.disabled = false;
-            typingInput.focus();
+            currentLevel = 1;
+            score = 0;
+            lives = 8;
+            initLevel();
+            gameActive = true;
+            typingInput.disabled = false;
+            typingInput.focus();
 
-            if (gameLoopInterval) clearInterval(gameLoopInterval);
-            gameLoopInterval = setInterval(gameLoop, 40);
-        }
+            if (gameLoopInterval) clearInterval(gameLoopInterval);
+            gameLoopInterval = setInterval(gameLoop, 40);
+        }
 
-        function initLevel() {
-            platformProgress = {};
-            platformsList.forEach(p => {
-                platformProgress[p.name] = 0;
-            });
-            activeWords = [];
-            spawnTimer = 0;
-            lives = 8;
-            updateUI();
-        }
+        function initLevel() {
+            platformProgress = {};
+            platformsList.forEach(p => {
+                platformProgress[p.name] = 0;
+            });
+            activeWords = [];
+            spawnTimer = 0;
 
-        function openGuideModal() { document.getElementById("guide-modal").classList.remove("hidden"); }
-        function closeGuideModal() { document.getElementById("guide-modal").classList.add("hidden"); }
+            // 8 vidas fijas para todas las misiones
+            lives = 8;
 
-        function updateUI() {
-            document.getElementById("disp-level").innerText = currentLevel;
-            document.getElementById("disp-score").innerText = score;
-            document.getElementById("disp-lives").innerText = "❤️".repeat(lives);
+            updateUI();
+        }
 
-            let instruction = "";
-            if (currentLevel === 1) instruction = "Escribe el nombre completo de la plataforma";
-            else if (currentLevel === 2) instruction = "Escribe la letra que falta (marcada con _)";
-            else if (currentLevel === 3) instruction = "Escribe las 2 letras faltantes separadas por espacio";
-            else if (currentLevel === 4) instruction = "Escribe las 3 letras faltantes (Experto)";
+        function openGuideModal() { document.getElementById("guide-modal").classList.remove("hidden"); }
+        function closeGuideModal() { document.getElementById("guide-modal").classList.add("hidden"); }
 
-            document.getElementById("typing-instruction").innerText = instruction;
+        function updateUI() {
+            document.getElementById("disp-level").innerText = currentLevel;
+            document.getElementById("disp-score").innerText = score;
+            document.getElementById("disp-lives").innerText = "❤️".repeat(lives);
 
-            const container = document.getElementById("platforms-progress-list");
-            container.innerHTML = "";
-            platformsList.forEach(p => {
-                let count = platformProgress[p.name] || 0;
-                let isDone = count >= 3;
-                let badge = document.createElement("div");
-                badge.className = `px-2 py-1 rounded-xl border text-[11px] flex items-center gap-1.5 ` + 
-                    (isDone ? "bg-emerald-950/50 border-emerald-500/50 text-emerald-300 font-bold" : "bg-black/30 border-white/10 text-slate-300");
-                badge.innerHTML = `<span>${p.short}</span> <span class="${isDone ? 'text-emerald-400' : 'text-cyan-300'}">${count}/3</span>`;
-                container.appendChild(badge);
-            });
-        }
+            let instruction = "";
+            if (currentLevel === 1) instruction = "Escribe el nombre completo de la plataforma";
+            else if (currentLevel === 2) instruction = "Escribe la letra que falta (marcada con _)";
+            else if (currentLevel === 3) instruction = "Escribe las 2 letras faltantes separadas por espacio";
+            else if (currentLevel === 4) instruction = "Escribe las 3 letras faltantes (Experto)";
 
-        function spawnWord() {
-            let available = platformsList.filter(p => platformProgress[p.name] < 3);
-            if (available.length === 0) return;
+            document.getElementById("typing-instruction").innerText = instruction;
 
-            let platform = available[Math.floor(Math.random() * available.length)];
-            let fullName = platform.name;
+            const container = document.getElementById("platforms-progress-list");
+            container.innerHTML = "";
+            platformsList.forEach(p => {
+                let count = platformProgress[p.name] || 0;
+                let isDone = count >= 3;
+                let badge = document.createElement("div");
+                badge.className = `px-2 py-1 rounded-xl border text-[11px] flex items-center gap-1.5 ` + 
+                    (isDone ? "bg-emerald-950/50 border-emerald-500/50 text-emerald-300 font-bold" : "bg-black/30 border-white/10 text-slate-300");
+                badge.innerHTML = `<span>${p.short}</span> <span class="${isDone ? 'text-emerald-400' : 'text-cyan-300'}">${count}/3</span>`;
+                container.appendChild(badge);
+            });
+        }
 
-            let displayText = fullName;
-            let expectedAnswer = "";
+        function spawnWord() {
+            let available = platformsList.filter(p => platformProgress[p.name] < 3);
+            if (available.length === 0) return;
 
-            if (currentLevel === 1) {
-                displayText = fullName;
-                expectedAnswer = fullName;
-            } else if (currentLevel === 2) {
-                let indices = [];
-                for (let i = 0; i < fullName.length; i++) {
-                    if (fullName[i] !== " ") indices.push(i);
-                }
-                let targetIdx = indices[Math.floor(Math.random() * indices.length)];
-                expectedAnswer = fullName[targetIdx];
+            let platform = available[Math.floor(Math.random() * available.length)];
+            let fullName = platform.name;
 
-                displayText = fullName.split("").map((char, idx) => idx === targetIdx ? "_" : char).join("");
-            } else if (currentLevel === 3) {
-                let indices = [];
-                for (let i = 0; i < fullName.length; i++) {
-                    if (fullName[i] !== " ") indices.push(i);
-                }
-                let idx1 = indices[Math.floor(Math.random() * indices.length)];
-                let idx2;
-                do {
-                    idx2 = indices[Math.floor(Math.random() * indices.length)];
-                } while (idx2 === idx1);
+            let displayText = fullName;
+            let expectedAnswer = "";
 
-                expectedAnswer = `${fullName[idx1]} ${fullName[idx2]}`;
+            if (currentLevel === 1) {
+                displayText = fullName;
+                expectedAnswer = fullName;
+            } else if (currentLevel === 2) {
+                let indices = [];
+                for (let i = 0; i < fullName.length; i++) {
+                    if (fullName[i] !== " ") indices.push(i);
+                }
+                let targetIdx = indices[Math.floor(Math.random() * indices.length)];
+                expectedAnswer = fullName[targetIdx];
 
-                displayText = fullName.split("").map((char, idx) => {
-                    if (idx === idx1 || idx === idx2) return "_";
-                    return char;
-                }).join("");
-            } else if (currentLevel === 4) {
-                let indices = [];
-                for (let i = 0; i < fullName.length; i++) {
-                    if (fullName[i] !== " ") indices.push(i);
-                }
-                let chosen = [];
-                while (chosen.length < 3 && chosen.length < indices.length) {
-                    let r = indices[Math.floor(Math.random() * indices.length)];
-                    if (!chosen.includes(r)) chosen.push(r);
-                }
+                displayText = fullName.split("").map((char, idx) => idx === targetIdx ? "_" : char).join("");
+            } else if (currentLevel === 3) {
+                let indices = [];
+                for (let i = 0; i < fullName.length; i++) {
+                    if (fullName[i] !== " ") indices.push(i);
+                }
+                let idx1 = indices[Math.floor(Math.random() * indices.length)];
+                let idx2;
+                do {
+                    idx2 = indices[Math.floor(Math.random() * indices.length)];
+                } while (idx2 === idx1);
 
-                expectedAnswer = chosen.map(i => fullName[i]).join(" ");
+                expectedAnswer = `${fullName[idx1]} ${fullName[idx2]}`;
 
-                displayText = fullName.split("").map((char, idx) => {
-                    if (chosen.includes(idx)) return "_";
-                    return char;
-                }).join("");
-            }
+                displayText = fullName.split("").map((char, idx) => {
+                    if (idx === idx1 || idx === idx2) return "_";
+                    return char;
+                }).join("");
+            } else if (currentLevel === 4) {
+                let indices = [];
+                for (let i = 0; i < fullName.length; i++) {
+                    if (fullName[i] !== " ") indices.push(i);
+                }
+                let chosen = [];
+                while (chosen.length < 3 && chosen.length < indices.length) {
+                    let r = indices[Math.floor(Math.random() * indices.length)];
+                    if (!chosen.includes(r)) chosen.push(r);
+                }
 
-            activeWords.push({
-                platformObj: platform,
-                fullName: fullName,
-                displayText: displayText,
-                expectedAnswer: expectedAnswer,
-                x: Math.random() * (canvas.width - 220) + 20,
-                y: -30,
-                // NUEVA VELOCIDAD: Muy lenta para primer grado y con un incremento mínimo por nivel
-                speed: 0.15 + (currentLevel * 0.05) 
-            });
-        }
+                expectedAnswer = chosen.map(i => fullName[i]).join(" ");
 
-        function processTyping() {
-            let typed = typingInput.value.trim().toUpperCase();
-            typingInput.value = "";
+                displayText = fullName.split("").map((char, idx) => {
+                    if (chosen.includes(idx)) return "_";
+                    return char;
+                }).join("");
+            }
 
-            if (typed === "") return;
+            activeWords.push({
+                platformObj: platform,
+                fullName: fullName,
+                displayText: displayText,
+                expectedAnswer: expectedAnswer,
+                x: Math.random() * (canvas.width - 220) + 20,
+                y: -30,
+                speed: 0.08
+            });
+        }
 
-            let index = activeWords.findIndex(w => w.expectedAnswer.toUpperCase() === typed || w.fullName.toUpperCase() === typed);
+        function processTyping() {
+            let typed = typingInput.value.trim().toUpperCase();
+            
+            // Borrar automáticamente la caja de texto al presionar Enter
+            typingInput.value = "";
 
-            if (index !== -1) {
-                let wordObj = activeWords[index];
-                activeWords.splice(index, 1);
+            if (typed === "") return;
 
-                if (platformProgress[wordObj.fullName] < 3) {
-                    platformProgress[wordObj.fullName]++;
-                }
+            let index = activeWords.findIndex(w => w.expectedAnswer.toUpperCase() === typed || w.fullName.toUpperCase() === typed);
 
-                score += 50 * currentLevel;
-                document.getElementById("typing-feedback").innerText = `¡Correcto! (+${50 * currentLevel}) 🎉`;
-                setTimeout(() => { document.getElementById("typing-feedback").innerText = ""; }, 1200);
+            if (index !== -1) {
+                let wordObj = activeWords[index];
+                activeWords.splice(index, 1);
 
-                updateUI();
-                checkLevelCompletion();
-            } else {
-                document.getElementById("typing-feedback").innerText = `❌ No coincide`;
-                setTimeout(() => { document.getElementById("typing-feedback").innerText = ""; }, 1000);
-            }
-        }
+                if (platformProgress[wordObj.fullName] < 3) {
+                    platformProgress[wordObj.fullName]++;
+                }
 
-        function checkLevelCompletion() {
-            let allCompleted = true;
-            platformsList.forEach(p => {
-                if (platformProgress[p.name] < 3) allCompleted = false;
-            });
+                score += 50 * currentLevel;
+                document.getElementById("typing-feedback").innerText = `¡Correcto! (+${50 * currentLevel}) 🎉`;
+                setTimeout(() => { document.getElementById("typing-feedback").innerText = ""; }, 1200);
 
-            if (allCompleted) {
-                gameActive = false;
-                typingInput.disabled = true;
-                confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
+                updateUI();
+                checkLevelCompletion();
+            } else {
+                document.getElementById("typing-feedback").innerText = `❌ No coincide`;
+                setTimeout(() => { document.getElementById("typing-feedback").innerText = ""; }, 1000);
+            }
+        }
 
-                if (currentLevel < 4) {
-                    document.getElementById("level-complete-title").innerText = `¡Nivel ${currentLevel} Superado!`;
-                    document.getElementById("level-complete-desc").innerText = `Has completado exitosamente todas las plataformas 3 veces cada una. ¡Prepárate para el Nivel ${currentLevel + 1}!`;
-                    document.getElementById("level-complete-modal").classList.remove("hidden");
-                } else {
-                    document.getElementById("vic-name").innerText = playerName;
-                    document.getElementById("vic-score").innerText = score;
-                    document.getElementById("victory-modal").classList.remove("hidden");
-                }
-            }
-        }
+        function checkLevelCompletion() {
+            let allCompleted = true;
+            platformsList.forEach(p => {
+                if (platformProgress[p.name] < 3) allCompleted = false;
+            });
 
-        function advanceLevel() {
-            document.getElementById("level-complete-modal").classList.add("hidden");
-            currentLevel++;
-            initLevel();
-            gameActive = true;
-            typingInput.disabled = false;
-            typingInput.focus();
-        }
+            if (allCompleted) {
+                gameActive = false;
+                typingInput.disabled = true;
+                confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
 
-        function restartGame() {
-            document.getElementById("game-over-modal").classList.add("hidden");
-            document.getElementById("victory-modal").classList.add("hidden");
-            currentLevel = 1;
-            score = 0;
-            initLevel();
-            gameActive = true;
-            typingInput.disabled = false;
-            typingInput.focus();
-        }
+                if (currentLevel < 4) {
+                    document.getElementById("level-complete-title").innerText = `¡Nivel ${currentLevel} Superado!`;
+                    document.getElementById("level-complete-desc").innerText = `Has completado exitosamente todas las plataformas 3 veces cada una. ¡Prepárate para el Nivel ${currentLevel + 1}!`;
+                    document.getElementById("level-complete-modal").classList.remove("hidden");
+                } else {
+                    document.getElementById("vic-name").innerText = playerName;
+                    document.getElementById("vic-score").innerText = score;
+                    document.getElementById("victory-modal").classList.remove("hidden");
+                }
+            }
+        }
 
-        function gameLoop() {
-            if (!gameActive) return;
+        function advanceLevel() {
+            document.getElementById("level-complete-modal").classList.add("hidden");
+            currentLevel++;
+            initLevel();
+            gameActive = true;
+            typingInput.disabled = false;
+            typingInput.focus();
+        }
 
-            spawnTimer++;
-            // Aumentado el tiempo entre aparición de palabras para que tengan más calma (de 95 a 140)
-            if (spawnTimer > 140 - (currentLevel * 10)) {
-                spawnWord();
-                spawnTimer = 0;
-            }
+        function restartGame() {
+            document.getElementById("game-over-modal").classList.add("hidden");
+            document.getElementById("victory-modal").classList.add("hidden");
+            currentLevel = 1;
+            score = 0;
+            initLevel();
+            gameActive = true;
+            typingInput.disabled = false;
+            typingInput.focus();
+        }
 
-            for (let i = activeWords.length - 1; i >= 0; i--) {
-                let w = activeWords[i];
-                w.y += w.speed;
+        function gameLoop() {
+            if (!gameActive) return;
 
-                if (w.y > canvas.height - 30) {
-                    activeWords.splice(i, 1);
-                    lives--;
-                    updateUI();
-                    if (lives <= 0) {
-                        gameActive = false;
-                        typingInput.disabled = true;
-                        document.getElementById("game-over-modal").classList.remove("hidden");
-                        return;
-                    }
-                }
-            }
+            spawnTimer++;
+            if (spawnTimer > 95 - (currentLevel * 10)) {
+                spawnWord();
+                spawnTimer = 0;
+            }
 
-            draw();
-        }
+            for (let i = activeWords.length - 1; i >= 0; i--) {
+                let w = activeWords[i];
+                w.y += w.speed;
 
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (w.y > canvas.height - 30) {
+                    activeWords.splice(i, 1);
+                    lives--;
+                    updateUI();
+                    if (lives <= 0) {
+                        gameActive = false;
+                        typingInput.disabled = true;
+                        document.getElementById("game-over-modal").classList.remove("hidden");
+                        return;
+                    }
+                }
+            }
 
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.03)";
-            ctx.lineWidth = 1;
-            for (let x = 0; x < canvas.width; x += 60) {
-                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-            }
+            draw();
+        }
 
-            activeWords.forEach(w => {
-                ctx.save();
-                ctx.font = "bold 15px Poppins";
-                let textWidth = ctx.measureText(w.displayText).width;
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                ctx.fillStyle = "rgba(15, 23, 42, 0.9)";
-                ctx.shadowColor = "rgba(56, 189, 248, 0.3)";
-                ctx.shadowBlur = 10;
-                ctx.beginPath();
-                ctx.roundRect(w.x - 12, w.y - 20, textWidth + 24, 34, 10);
-                ctx.fill();
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.03)";
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 60) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
 
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = "#38bdf8";
-                ctx.stroke();
+            activeWords.forEach(w => {
+                ctx.save();
+                ctx.font = "bold 15px Poppins";
+                let textWidth = ctx.measureText(w.displayText).width;
 
-                ctx.fillStyle = "#ffffff";
-                ctx.textAlign = "left";
-                ctx.textBaseline = "middle";
-                ctx.fillText(w.displayText, w.x, w.y - 3);
+                ctx.fillStyle = "rgba(15, 23, 42, 0.9)";
+                ctx.shadowColor = "rgba(56, 189, 248, 0.3)";
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.roundRect(w.x - 12, w.y - 20, textWidth + 24, 34, 10);
+                ctx.fill();
 
-                ctx.restore();
-            });
-        }
-    </script>
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#38bdf8";
+                ctx.stroke();
+
+                ctx.fillStyle = "#ffffff";
+                ctx.textAlign = "left";
+                ctx.textBaseline = "middle";
+                ctx.fillText(w.displayText, w.x, w.y - 3);
+
+                ctx.restore();
+            });
+        }
+    </script>
 </body>
 </html>
