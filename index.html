@@ -4,27 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lluvia de Plataformas: Centro de Control</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Canvas Confetti CDN -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
-        body { font-family: 'Poppins', sans-serif; user-select: none; }\n        input { user-select: text; }\n        button, input { touch-action: manipulation; }\n        button:focus-visible, input:focus-visible { outline: 3px solid #67e8f9; outline-offset: 3px; }
+        body { font-family: 'Poppins', sans-serif; user-select: none; transition: background 0.6s ease; }
+        input { user-select: text; }
+        button, input { touch-action: manipulation; }
+        button:focus-visible, input:focus-visible { outline: 3px solid #67e8f9; outline-offset: 3px; }
+
         .game-arena {
             background: radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%);
             box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5);
+            transition: background 0.6s ease, box-shadow 0.6s ease;
         }
+
+        /* Temas por modo */
+        body.theme-aprendizaje {
+            background: linear-gradient(135deg, #022c22 0%, #064e3b 50%, #022c22 100%);
+        }
+        body.theme-aprendizaje .game-arena {
+            background: radial-gradient(circle at center, #064e3b 0%, #022c22 100%);
+            box-shadow: 0 20px 25px -5px rgb(16 185 129 / 0.35);
+        }
+
+        body.theme-practica {
+            background: linear-gradient(135deg, #082f49 0%, #0c4a6e 50%, #082f49 100%);
+        }
+        body.theme-practica .game-arena {
+            background: radial-gradient(circle at center, #0c4a6e 0%, #082f49 100%);
+            box-shadow: 0 20px 25px -5px rgb(56 189 248 / 0.35);
+        }
+
+        body.theme-desafio {
+            background: linear-gradient(135deg, #451a03 0%, #78350f 50%, #451a03 100%);
+        }
+        body.theme-desafio .game-arena {
+            background: radial-gradient(circle at center, #78350f 0%, #451a03 100%);
+            box-shadow: 0 20px 25px -5px rgb(251 191 36 / 0.35);
+        }
+
+        body.theme-aprendizaje header,
+        body.theme-aprendizaje .progress-bar {
+            border-color: rgba(16, 185, 129, 0.4) !important;
+            background-color: rgba(6, 78, 59, 0.55) !important;
+        }
+        body.theme-aprendizaje header h1 { color: #6ee7b7 !important; }
+        body.theme-aprendizaje #typing-input {
+            border-color: rgba(16, 185, 129, 0.5) !important;
+            background-color: rgba(2, 44, 34, 0.75) !important;
+        }
+        body.theme-aprendizaje #typing-input:focus { border-color: #34d399 !important; }
+        body.theme-aprendizaje #typing-instruction { color: #6ee7b7 !important; }
+        body.theme-aprendizaje .mode-status-text { color: #6ee7b7 !important; }
+
+        body.theme-practica header,
+        body.theme-practica .progress-bar {
+            border-color: rgba(56, 189, 248, 0.4) !important;
+            background-color: rgba(12, 74, 110, 0.55) !important;
+        }
+        body.theme-practica header h1 { color: #7dd3fc !important; }
+        body.theme-practica #typing-input {
+            border-color: rgba(56, 189, 248, 0.5) !important;
+            background-color: rgba(8, 47, 73, 0.75) !important;
+        }
+        body.theme-practica #typing-input:focus { border-color: #38bdf8 !important; }
+        body.theme-practica #typing-instruction { color: #7dd3fc !important; }
+        body.theme-practica .mode-status-text { color: #7dd3fc !important; }
+
+        body.theme-desafio header,
+        body.theme-desafio .progress-bar {
+            border-color: rgba(251, 191, 36, 0.4) !important;
+            background-color: rgba(120, 53, 15, 0.55) !important;
+        }
+        body.theme-desafio header h1 { color: #fcd34d !important; }
+        body.theme-desafio #typing-input {
+            border-color: rgba(251, 191, 36, 0.5) !important;
+            background-color: rgba(69, 26, 3, 0.75) !important;
+        }
+        body.theme-desafio #typing-input:focus { border-color: #fbbf24 !important; }
+        body.theme-desafio #typing-instruction { color: #fcd34d !important; }
+        body.theme-desafio .mode-status-text { color: #fcd34d !important; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 min-h-screen text-white flex flex-col items-center justify-between p-3 md:p-6">
+<body class="min-h-screen text-white flex flex-col items-center justify-between p-3 md:p-6">
 
-    <!-- Modal de Inicio / Pedir Nombre -->
+    <!-- Modal de Inicio -->
     <div id="name-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-white/10 border border-white/20 rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl backdrop-blur-xl max-h-[94vh] overflow-y-auto">
             <span class="text-4xl mb-2 block">🌧️</span>
             <h2 class="text-2xl font-extrabold text-white mb-2">Lluvia de Plataformas</h2>
-            <p class="text-slate-300 text-sm mb-4">Aprende jugando: observa cada plataforma y escribe su nombre o las letras que faltan. ¡Ve a tu ritmo y vuelve a intentarlo si te equivocas!</p>
+            <p class="text-slate-300 text-sm mb-4">Aprende jugando: observa cada plataforma y escribe su nombre o las letras que faltan. ¡Ve a tu ritmo!</p>
             <div class="bg-black/30 p-3 rounded-2xl mb-4 text-xs text-cyan-300 text-left space-y-1">
                 <p>⭐ <b>Nivel 1:</b> Escribe el nombre completo (3 aciertos por plataforma).</p>
                 <p>⭐ <b>Nivel 2:</b> Escribe la letra que falta (3 aciertos por plataforma).</p>
@@ -38,21 +108,21 @@
                         <input type="radio" name="game-mode" value="aprendizaje" checked class="mt-1 accent-emerald-400">
                         <span class="flex-1">
                             <span class="block text-emerald-300 font-extrabold">🟢 Modo aprendizaje</span>
-                            <span class="block text-xs text-slate-200">Una sola palabra en pantalla. Velocidad lenta: 12 px/s.</span>
+                            <span class="block text-xs text-slate-200">Sin perder vidas. Velocidad lenta: 6 px/s.</span>
                         </span>
                     </label>
                     <label class="mode-option flex items-start gap-3 p-3 rounded-xl border-2 border-white/15 bg-black/20 cursor-pointer">
                         <input type="radio" name="game-mode" value="practica" class="mt-1 accent-sky-400">
                         <span class="flex-1">
                             <span class="block text-sky-300 font-extrabold">🔵 Modo práctica</span>
-                            <span class="block text-xs text-slate-200">Máximo 2 palabras en pantalla. Velocidad moderada: 22 px/s.</span>
+                            <span class="block text-xs text-slate-200">Pierdes vida al fallar o dejar caer. Velocidad: 11 px/s.</span>
                         </span>
                     </label>
                     <label class="mode-option flex items-start gap-3 p-3 rounded-xl border-2 border-white/15 bg-black/20 cursor-pointer">
                         <input type="radio" name="game-mode" value="desafio" class="mt-1 accent-amber-400">
                         <span class="flex-1">
                             <span class="block text-amber-300 font-extrabold">🟠 Modo desafío</span>
-                            <span class="block text-xs text-slate-200">Máximo 3 palabras en pantalla. Velocidad rápida: 30 px/s.</span>
+                            <span class="block text-xs text-slate-200">Pierdes vida al fallar o dejar caer. Velocidad: 15 px/s.</span>
                         </span>
                     </label>
                 </div>
@@ -69,7 +139,7 @@
         </div>
     </div>
 
-    <!-- Modal Guía de Características -->
+    <!-- Modal Guía -->
     <div id="guide-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-white/20 rounded-3xl p-6 max-w-lg w-full shadow-2xl backdrop-blur-xl max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center mb-4">
@@ -104,7 +174,7 @@
         </div>
     </div>
 
-    <!-- Modal de Fin de Nivel / Misión Completada -->
+    <!-- Modal Nivel Superado -->
     <div id="level-complete-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-indigo-950/60 border border-indigo-500/30 rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl backdrop-blur-xl">
             <span class="text-5xl mb-3 block">🌟</span>
@@ -116,7 +186,7 @@
         </div>
     </div>
 
-    <!-- Modal de Game Over -->
+    <!-- Modal Game Over -->
     <div id="game-over-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-red-950/40 border border-red-500/30 rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl backdrop-blur-xl">
             <span class="text-5xl mb-3 block">💔</span>
@@ -128,7 +198,7 @@
         </div>
     </div>
 
-    <!-- Modal de Victoria Total -->
+    <!-- Modal Victoria -->
     <div id="victory-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl backdrop-blur-xl">
             <span class="text-5xl mb-3 block">🏆</span>
@@ -144,12 +214,12 @@
         </div>
     </div>
 
-    <!-- Cabecera del Juego -->
-    <header class="w-full max-w-3xl flex flex-wrap justify-between items-center bg-white/10 backdrop-blur-md px-4 py-3 rounded-2xl border border-white/10 mb-3 gap-2">
+    <!-- Cabecera -->
+    <header class="w-full max-w-3xl flex flex-wrap justify-between items-center backdrop-blur-md px-4 py-3 rounded-2xl border mb-3 gap-2">
         <div class="flex items-center gap-2">
             <span class="text-xl">🌧️</span>
             <div>
-                <h1 class="text-base md:text-lg font-extrabold text-cyan-300">Lluvia de Plataformas</h1>
+                <h1 class="text-base md:text-lg font-extrabold">Lluvia de Plataformas</h1>
                 <p class="text-xs text-slate-300">Jugador: <span id="disp-name" class="text-white font-bold">Operador</span></p>
             </div>
         </div>
@@ -157,41 +227,42 @@
             <span>Nivel: <strong id="disp-level" class="text-amber-300">1</strong>/4</span>
             <span>Puntos: <strong id="disp-score" class="text-emerald-400">0</strong></span>
             <span>Vidas: <strong id="disp-lives" class="text-rose-400">❤️❤️❤️❤️❤️❤️❤️❤️</strong></span>
-            <button onclick="openGuideModal()" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-xl text-cyan-300 border border-white/20">Guía</button>
+            <button onclick="openGuideModal()" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-xl border border-white/20">Guía</button>
         </div>
     </header>
 
-    <!-- Contenedor Principal -->
     <main class="w-full max-w-3xl flex flex-col items-center gap-3">
-        <!-- Barra Compacta en Una Sola Fila para el Progreso de Plataformas -->
-        <div class="w-full bg-white/5 border border-white/10 rounded-2xl p-2.5 backdrop-blur-md flex flex-wrap items-center justify-between gap-2">
-            <div class="text-xs font-bold text-purple-300 uppercase pl-1">Progreso: <span id="mode-status" class="normal-case text-cyan-200 ml-2">Aprendizaje · 1 palabra</span></div>
-            <div id="platforms-progress-list" class="flex flex-wrap items-center justify-end gap-2 flex-1">
-                <!-- Se llena dinámicamente -->
-            </div>
+        <!-- Barra de progreso -->
+        <div class="progress-bar w-full border rounded-2xl p-2.5 backdrop-blur-md flex flex-wrap items-center justify-between gap-2">
+            <div class="text-xs font-bold text-purple-300 uppercase pl-1">Progreso: <span id="mode-status" class="mode-status-text normal-case ml-2">Aprendizaje · 1 palabra</span></div>
+            <div id="platforms-progress-list" class="flex flex-wrap items-center justify-end gap-2 flex-1"></div>
         </div>
 
-        <!-- Área de Lluvia (Canvas) -->
+        <!-- Niveles completados -->
+        <div class="progress-bar w-full border rounded-2xl p-2 backdrop-blur-md flex items-center gap-2">
+            <span class="text-xs font-bold text-purple-300 uppercase pl-1">Niveles:</span>
+            <div id="levels-progress-list" class="flex flex-wrap items-center gap-2"></div>
+        </div>
+
+        <!-- Canvas -->
         <div class="relative w-full flex justify-center">
             <canvas id="gameCanvas" width="600" height="380" class="game-arena rounded-3xl border border-white/20 w-full max-w-[600px] h-auto"></canvas>
         </div>
 
-        <!-- Caja de Texto Interactiva -->
+        <!-- Input -->
         <div class="w-full max-w-[600px]">
-            <input type="text" id="typing-input" placeholder="Escribe la respuesta y presiona Enter..." autocomplete="off" disabled class="w-full px-4 py-3 rounded-2xl bg-black/60 border border-cyan-500/40 text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 font-semibold text-sm shadow-lg">
+            <input type="text" id="typing-input" placeholder="Escribe la respuesta y presiona Enter..." autocomplete="off" disabled class="w-full px-4 py-3 rounded-2xl border text-white placeholder-slate-400 focus:outline-none font-semibold text-sm shadow-lg">
             <div class="flex justify-between items-center mt-1.5 px-2 text-[11px] text-slate-400">
-                <span>💡 <span id="typing-instruction" class="text-cyan-300">Escribe el nombre completo de la plataforma</span></span>
+                <span>💡 <span id="typing-instruction">Escribe el nombre completo de la plataforma</span></span>
                 <span id="typing-feedback" class="text-amber-300 font-bold"></span>
             </div>
         </div>
     </main>
 
-    <!-- Footer -->
     <footer class="mt-3 text-center text-xs text-slate-400">
         Escuela Primaria • Herramientas Tecnológicas Educativas
     </footer>
 
-    <!-- Lógica del Juego -->
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
@@ -207,27 +278,43 @@
         let playerName = "Operador";
         let currentLevel = 1;
         let score = 0;
-        let lives = 12; // Más oportunidades para practicar
+        let lives = 12;
         let gameActive = false;
 
         let platformProgress = {};
+        let completedLevels = [];
         let activeWords = [];
-        let visualEffects = []; // Confeti y X animadas al responder
+        let visualEffects = [];
         let spawnTimer = 0;
         let lastFrameTime = 0;
         let animationFrameId = null;
-        let spawnInterval = 4500; // milisegundos entre palabras
+        let spawnInterval = 4500;
         let gameMode = "aprendizaje";
         let maxVisibleWords = 1;
-        let wordSpeed = 12; // píxeles por segundo; depende del modo elegido
+        let wordSpeed = 6;
+
+        const modeTheme = {
+            aprendizaje: { bg: "rgba(6, 78, 59, 0.92)", border: "#34d399", shadow: "rgba(52, 211, 153, 0.35)" },
+            practica:    { bg: "rgba(12, 74, 110, 0.92)", border: "#38bdf8", shadow: "rgba(56, 189, 248, 0.35)" },
+            desafio:     { bg: "rgba(120, 53, 15, 0.92)", border: "#fbbf24", shadow: "rgba(251, 191, 36, 0.35)" }
+        };
 
         const typingInput = document.getElementById("typing-input");
 
+        function modeHasLives() {
+            return gameMode === "practica" || gameMode === "desafio";
+        }
+
+        function applyTheme() {
+            document.body.classList.remove("theme-aprendizaje", "theme-practica", "theme-desafio");
+            document.body.classList.add("theme-" + gameMode);
+        }
+
         function updateModeSelection() {
             const settings = {
-                aprendizaje: { maxWords: 1, speed: 12, interval: 4500 },
-                practica: { maxWords: 2, speed: 22, interval: 3400 },
-                desafio: { maxWords: 3, speed: 30, interval: 2600 }
+                aprendizaje: { maxWords: 1, speed: 6, interval: 4500 },
+                practica: { maxWords: 2, speed: 11, interval: 3400 },
+                desafio: { maxWords: 3, speed: 15, interval: 2600 }
             };
             const selected = document.querySelector('input[name="game-mode"]:checked');
             gameMode = selected ? selected.value : "aprendizaje";
@@ -238,9 +325,9 @@
             const status = document.getElementById("mode-status");
             if (status) {
                 const labels = {
-                    aprendizaje: "Aprendizaje · 1 palabra · lento",
-                    practica: "Práctica · máx. 2 palabras · moderado",
-                    desafio: "Desafío · máx. 3 palabras · rápido"
+                    aprendizaje: "Aprendizaje · 1 palabra · sin vidas",
+                    practica: "Práctica · máx. 2 palabras · con vidas",
+                    desafio: "Desafío · máx. 3 palabras · con vidas"
                 };
                 status.textContent = labels[gameMode];
             }
@@ -256,6 +343,8 @@
                 label.classList.toggle("bg-sky-500/15", active && radio.value === "practica");
                 label.classList.toggle("bg-amber-500/15", active && radio.value === "desafio");
             });
+
+            applyTheme();
         }
 
         document.querySelectorAll('input[name="game-mode"]').forEach(radio => {
@@ -283,6 +372,7 @@
             currentLevel = 1;
             score = 0;
             lives = 12;
+            completedLevels = [];
             initLevel();
             gameActive = true;
             typingInput.disabled = false;
@@ -297,7 +387,6 @@
             activeWords = [];
             visualEffects = [];
             spawnTimer = 0;
-            // La velocidad y el intervalo dependen del modo elegido en la pantalla inicial.
             lives = 12;
             updateUI();
             draw();
@@ -309,7 +398,9 @@
         function updateUI() {
             document.getElementById("disp-level").innerText = currentLevel;
             document.getElementById("disp-score").innerText = score;
-            document.getElementById("disp-lives").innerText = "❤️".repeat(lives);
+            document.getElementById("disp-lives").innerText = modeHasLives()
+                ? "❤️".repeat(lives)
+                : "∞ (sin vidas)";
 
             let instruction = "";
             if (currentLevel === 1) instruction = "Escribe el nombre completo de la plataforma";
@@ -325,17 +416,30 @@
                 let count = platformProgress[p.name] || 0;
                 let isDone = count >= 3;
                 let badge = document.createElement("div");
-                badge.className = `px-2 py-1 rounded-xl border text-[11px] flex items-center gap-1.5 ` + 
+                badge.className = `px-2 py-1 rounded-xl border text-[11px] flex items-center gap-1.5 ` +
                     (isDone ? "bg-emerald-950/50 border-emerald-500/50 text-emerald-300 font-bold" : "bg-black/30 border-white/10 text-slate-300");
-                badge.innerHTML = `<span>${p.short}</span> <span class="${isDone ? 'text-emerald-400' : 'text-cyan-300'}">${count}/3</span>`;
+                badge.innerHTML = `<span>${p.name}</span> <span class="${isDone ? 'text-emerald-400' : ''}">${count}/3</span>`;
                 container.appendChild(badge);
             });
+
+            const levelsContainer = document.getElementById("levels-progress-list");
+            levelsContainer.innerHTML = "";
+            for (let lvl = 1; lvl <= 4; lvl++) {
+                const done = completedLevels.includes(lvl);
+                const isCurrent = lvl === currentLevel && !done;
+                let badge = document.createElement("div");
+                badge.className = `px-2 py-1 rounded-xl border text-[11px] font-bold flex items-center gap-1 ` +
+                    (done ? "bg-emerald-950/60 border-emerald-400 text-emerald-300"
+                          : isCurrent ? "bg-cyan-950/50 border-cyan-400 text-cyan-200"
+                          : "bg-black/30 border-white/10 text-slate-500");
+                badge.innerHTML = done ? `✓ N${lvl}` : `N${lvl}`;
+                levelsContainer.appendChild(badge);
+            }
         }
 
         function spawnWord() {
             const available = platformsList.filter(p => (platformProgress[p.name] || 0) < 3);
             if (!available.length || activeWords.length >= maxVisibleWords) return false;
-            // Mantener una separación vertical mínima entre palabras, para facilitar la lectura.
             if (activeWords.some(w => w.y < 72)) return false;
 
             const platform = available[Math.floor(Math.random() * available.length)];
@@ -362,7 +466,7 @@
             ctx.font = "bold 17px Poppins, sans-serif";
             const textWidth = ctx.measureText(displayText).width;
             ctx.restore();
-            const boxWidth = Math.min(canvas.width - 12, textWidth + 28);
+            const boxWidth = Math.min(canvas.width - 12, Math.max(textWidth + 28, 200));
             const maxX = Math.max(6, canvas.width - boxWidth - 6);
             const candidates = [];
             for (let x = 6; x <= maxX; x += 24) candidates.push(x);
@@ -384,7 +488,6 @@
         }
 
         function normalizeAnswer(value) {
-            // Normaliza mayúsculas, tildes y espacios para evitar falsos errores.
             return String(value || "")
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
@@ -394,7 +497,6 @@
         }
 
         function compactAnswer(value) {
-            // También permite responder sin espacios cuando la actividad pide letras separadas.
             return normalizeAnswer(value).replace(/\s+/g, "");
         }
 
@@ -403,7 +505,6 @@
             const centerY = word.y - 3;
 
             if (type === "confetti") {
-                // Pequeñas partículas de colores que salen de la palabra correcta.
                 for (let i = 0; i < 34; i++) {
                     const angle = Math.random() * Math.PI * 2;
                     const speed = 45 + Math.random() * 150;
@@ -461,7 +562,6 @@
                     ctx.fillStyle = effect.color;
                     ctx.fillRect(-effect.size / 2, -effect.size / 2, effect.size, effect.size * 0.72);
                 } else {
-                    // X roja que crece rápidamente y luego se desvanece.
                     const pop = progress < 0.25 ? 0.65 + progress * 1.4 : 1;
                     const size = effect.size * pop;
                     ctx.translate(effect.x, effect.y);
@@ -497,22 +597,19 @@
             });
 
             const feedback = document.getElementById("typing-feedback");
+
             if (index !== -1) {
-                // Respuesta correcta: desaparece esa palabra y explota en confeti animado.
                 const wordObj = activeWords[index];
                 createWordEffect(wordObj, "confetti");
                 activeWords.splice(index, 1);
-
                 if ((platformProgress[wordObj.fullName] || 0) < 3) platformProgress[wordObj.fullName]++;
                 const points = 50 * currentLevel;
                 score += points;
-                feedback.innerText = `¡Correcto! ¡Confeti! +${points} puntos 🎉`;
+                feedback.innerText = `¡Correcto! +${points} puntos 🎉`;
                 feedback.className = "text-emerald-300 font-bold";
                 updateUI();
                 checkLevelCompletion();
             } else if (activeWords.length > 0) {
-                // Respuesta incorrecta: se marca con una X roja animada la palabra más urgente
-                // (la que está más cerca de la parte inferior) y esa palabra desaparece.
                 let targetIndex = 0;
                 for (let i = 1; i < activeWords.length; i++) {
                     if (activeWords[i].y > activeWords[targetIndex].y) targetIndex = i;
@@ -520,8 +617,23 @@
                 const wrongWord = activeWords[targetIndex];
                 createWordEffect(wrongWord, "cross");
                 activeWords.splice(targetIndex, 1);
-                feedback.innerText = "¡No coincide! La palabra desapareció con una X. Inténtalo de nuevo.";
+
+                if (modeHasLives()) {
+                    lives--;
+                    feedback.innerText = "¡No coincide! Pierdes una vida ❤️";
+                    if (lives <= 0) {
+                        gameActive = false;
+                        typingInput.disabled = true;
+                        stopGameLoop();
+                        document.getElementById("game-over-modal").classList.remove("hidden");
+                        draw();
+                        return;
+                    }
+                } else {
+                    feedback.innerText = "¡No coincide! En aprendizaje no pierdes vidas 😊";
+                }
                 feedback.className = "text-rose-300 font-bold";
+                updateUI();
             } else {
                 feedback.innerText = "Todavía no hay palabras para responder. ¡Espera la siguiente!";
                 feedback.className = "text-amber-200 font-bold";
@@ -541,11 +653,13 @@
                 gameActive = false;
                 typingInput.disabled = true;
                 stopGameLoop();
+                if (!completedLevels.includes(currentLevel)) completedLevels.push(currentLevel);
+                updateUI();
                 if (typeof confetti === "function") confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
 
                 if (currentLevel < 4) {
                     document.getElementById("level-complete-title").innerText = `¡Nivel ${currentLevel} Superado!`;
-                    document.getElementById("level-complete-desc").innerText = `Has completado exitosamente todas las plataformas 3 veces cada una. ¡Prepárate para el Nivel ${currentLevel + 1}!`;
+                    document.getElementById("level-complete-desc").innerText = `Has completado todas las plataformas 3 veces. ¡Prepárate para el Nivel ${currentLevel + 1}!`;
                     document.getElementById("level-complete-modal").classList.remove("hidden");
                 } else {
                     document.getElementById("vic-name").innerText = playerName;
@@ -574,6 +688,7 @@
             currentLevel = 1;
             score = 0;
             lives = 12;
+            completedLevels = [];
             initLevel();
             gameActive = true;
             typingInput.disabled = false;
@@ -611,21 +726,28 @@
                 w.y += w.speed * deltaSeconds;
                 if (w.y > canvas.height - 18) {
                     activeWords.splice(i, 1);
-                    lives--;
-                    updateUI();
                     const feedback = document.getElementById("typing-feedback");
-                    feedback.innerText = "¡Sigue! La próxima tendrás más tiempo 💪";
-                    feedback.className = "text-amber-200 font-bold";
+
+                    if (modeHasLives()) {
+                        lives--;
+                        updateUI();
+                        feedback.innerText = "¡Se cayó! Pierdes una vida ❤️";
+                        feedback.className = "text-rose-300 font-bold";
+                        if (lives <= 0) {
+                            gameActive = false;
+                            typingInput.disabled = true;
+                            stopGameLoop();
+                            document.getElementById("game-over-modal").classList.remove("hidden");
+                            draw();
+                            return;
+                        }
+                    } else {
+                        feedback.innerText = "¡Se cayó! En aprendizaje no pierdes vidas 😊";
+                        feedback.className = "text-amber-200 font-bold";
+                    }
+
                     window.clearTimeout(window.feedbackTimeout);
                     window.feedbackTimeout = window.setTimeout(() => { feedback.innerText = ""; }, 1600);
-                    if (lives <= 0) {
-                        gameActive = false;
-                        typingInput.disabled = true;
-                        stopGameLoop();
-                        document.getElementById("game-over-modal").classList.remove("hidden");
-                        draw();
-                        return;
-                    }
                 }
             }
             draw();
@@ -641,26 +763,34 @@
                 ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
             }
 
+            const theme = modeTheme[gameMode] || modeTheme.aprendizaje;
+
             activeWords.forEach(w => {
                 ctx.save();
                 ctx.font = "bold 17px Poppins, sans-serif";
                 let textWidth = ctx.measureText(w.displayText).width;
 
-                ctx.fillStyle = "rgba(15, 23, 42, 0.9)";
-                ctx.shadowColor = "rgba(56, 189, 248, 0.3)";
+                const boxW = Math.min(canvas.width - w.x - 6, (w.boxWidth || textWidth + 28));
+                const boxH = 38;
+                const boxX = w.x - 6;
+                const boxY = w.y - 22;
+
+                ctx.fillStyle = theme.bg;
+                ctx.shadowColor = theme.shadow;
                 ctx.shadowBlur = 10;
                 ctx.beginPath();
-                ctx.roundRect(w.x - 6, w.y - 22, Math.min(canvas.width - w.x - 6, (w.boxWidth || textWidth + 28)), 38, 10);
+                ctx.roundRect(boxX, boxY, boxW, boxH, 10);
                 ctx.fill();
 
                 ctx.lineWidth = 2;
-                ctx.strokeStyle = "#38bdf8";
+                ctx.strokeStyle = theme.border;
                 ctx.stroke();
 
+                ctx.shadowBlur = 0;
                 ctx.fillStyle = "#ffffff";
-                ctx.textAlign = "left";
+                ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
-                ctx.fillText(w.displayText, w.x + 6, w.y - 3, canvas.width - w.x - 18);
+                ctx.fillText(w.displayText, boxX + boxW / 2, boxY + boxH / 2, boxW - 16);
 
                 ctx.restore();
             });
